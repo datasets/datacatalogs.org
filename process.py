@@ -112,6 +112,8 @@ for dataset in datasets['results']:
         num_failed = num_failed + 1
 
     # Promote the dataset's extras to top-level keys.
+    dataset['spatial_code'] = dataset['extras']['spatial']
+    del dataset['extras']['spatial']
     dataset.update(dataset['extras'])
     del dataset['extras']
 
