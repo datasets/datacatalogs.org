@@ -28,6 +28,11 @@ def geonames_lookup(spatial_text):
 
     '''
     global time_of_last_geonames_request
+
+    if spatial_text.lower() in ('global', 'earth', 'globe', 'world',
+            'worldwide'):
+        return None
+
     if os.path.exists('cache/geonames.json'):
         cache = json.loads(open('cache/geonames.json', 'r').read())
     else:
@@ -108,6 +113,7 @@ for dataset in datasets['results']:
         print "Geocoded dataset {name}".format(**dataset)
         num_geocoded = num_geocoded + 1
     else:
+        dataset['location'] = None
         print "No geonames in result for dataset {name}".format(**dataset)
         num_failed = num_failed + 1
 
@@ -124,7 +130,7 @@ for dataset in datasets['results']:
 
 json.dump(datasets['results'],
         open('cache/datacatalogs.geocoded.json', 'w'))
-print "Geocoded {0} datasets, {1} failed".format(num_geocoded, num_failed)
+print "Geocoded {0} datasets, {1} failed or not geo-locatable (e.g. global datacatalogs)".format(num_geocoded, num_failed)
 
 # Use ckanclient (https://github.com/okfn/ckanclient) to upload the resource
 # to thedatahub.org.
