@@ -24,7 +24,6 @@ if not os.path.exists('cache/datacatalogs.geocoded.json'):
     num_failed = 0
     rawtext = open('cache/datacatalogs.json', 'r').read()
     datasets = json.loads(rawtext)
-    geocoded_datasets = []
     for dataset in datasets['results']:
         spatial_text = dataset['extras']['spatial_text']
         spatial_text = spatial_text.encode('utf8', 'ignore')
@@ -33,14 +32,26 @@ if not os.path.exists('cache/datacatalogs.geocoded.json'):
         res = fo.read()
         res = json.loads(res)
         if res['geonames']:
-            dataset['spatial'] = res['geonames'][0]
+            dataset['location'] = {}
+            dataset['location']['lat'] = res['geonames'][0]['lat']
+            dataset['location']['lon'] = res['geonames'][0]['lng']
             print "Geocoded dataset {name}".format(**dataset)
             num_geocoded = num_geocoded + 1
         else:
             print "No geonames in result for dataset {name}".format(**dataset)
             num_failed = num_failed + 1
+
+        # Promote the dataset's extras to top-level keys.
+        dataset.update(dataset['extras'])
+        del dataset['extras']
+
+        # Delete any empty values.
+        for key in dataset.keys():
+            if not dataset[key]:
+                del dataset[key]
+
         time.sleep(0.5)
-    json.dump([dataset for dataset in datasets['results'] if 'spatial' in dataset],
+    json.dump([dataset for dataset in datasets['results'] if 'location' in dataset],
             open('cache/datacatalogs.geocoded.json', 'w'))
     print "Geocoded {0} datasets, {1} failed".format(num_geocoded, num_failed)
 else:
