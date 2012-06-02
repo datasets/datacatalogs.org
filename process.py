@@ -135,7 +135,7 @@ client = ckanclient.datastore.DataStoreClient(datastore_url)
 # Specify that the 'location' field is a geo_point.
 mapping = {
     'properties': {
-        'Location': {
+        'location': {
             'type': 'geo_point'
             }
     }
